@@ -802,6 +802,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CameraFollow
   playerBody: {fileID: 594929928}
   mouseSensitivity: 1
+  walkBobSpeed: 10
+  walkBobAmount: 0.03
+  sprintBobSpeed: 16
+  sprintBobAmount: 0.06
+  bobSmoothSpeed: 8
 --- !u!114 &83174995
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8693,6 +8698,7 @@ MonoBehaviour:
   gravity: -20
   jumpHeight: 1
   playerController: {fileID: 594929924}
+  cameraFollow: {fileID: 0}
 --- !u!143 &594929922
 CharacterController:
   m_ObjectHideFlags: 0

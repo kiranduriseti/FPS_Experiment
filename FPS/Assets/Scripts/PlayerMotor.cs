@@ -4,20 +4,26 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMotor : MonoBehaviour
 {
+    [Header("Player stats")]
     [SerializeField] private float walkSpeed = 8f;
     [SerializeField] private float sprintSpeed = 15f;
     [SerializeField] private float gravity = -20f;
     [SerializeField] private float jumpHeight = 1f;
     [SerializeField] private PlayerController playerController;
 
+    [Header("References")]
     private CharacterController controller;
     private MovementControls controls;
     private Vector2 moveInput;
-    private float weaponInput;
     private bool sprintHeld;
     private bool jumpPressed;
     private Vector3 velocity;
 
+    [SerializeField] private CameraFollow cameraFollow;
+
+    private void Start()
+    {
+    }
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
@@ -27,6 +33,9 @@ public class PlayerMotor : MonoBehaviour
 
         if (playerController == null)
             playerController = GetComponent<PlayerController>();
+
+        if (cameraFollow == null && Camera.main != null)
+            cameraFollow = Camera.main.GetComponent<CameraFollow>();
     }
 
     private void OnEnable()
@@ -90,11 +99,16 @@ public class PlayerMotor : MonoBehaviour
     {
         float currentSpeed = sprintHeld ? sprintSpeed : walkSpeed;
 
-        bool isActuallySprinting = sprintHeld && moveInput.sqrMagnitude > 0.01f;
+        bool isMoving = moveInput.sqrMagnitude > 0.01f;
+        bool isActuallySprinting = sprintHeld && isMoving;
+
         if (playerController != null)
         {
             playerController.sprintAnim(isActuallySprinting);
         }
+
+        if (cameraFollow != null)
+            cameraFollow.SetMovementState(isMoving, isActuallySprinting);
 
         float yaw = transform.eulerAngles.y;
         Quaternion yawRotation = Quaternion.Euler(0f, yaw, 0f);

@@ -68,7 +68,7 @@ public class PlayerGun : MonoBehaviour
         if (gunName == "Default Primary")
         {
             sprintLocalPositionOffset = new Vector3(0f, 0f, -0.1f);
-            sprintLocalRotationOffset = new Vector3(-60f, 0f, -20f);
+            sprintLocalRotationOffset = new Vector3(60f, 0f, -20f);
             normalLocalRotation = Quaternion.Euler(0f, 180f, 0f);
 
             recoilAngle = 70f;
