@@ -20,3 +20,7 @@
 *.pdb
 *.opendb
 .DS_Store
+
+*.unitypackage
+
+FPS/Assets/Assets_Discussion2/

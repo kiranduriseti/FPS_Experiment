@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
+using System.Collections.Generic;
 
 public class PlayerController : MonoBehaviour
 {
@@ -46,8 +47,9 @@ public class PlayerController : MonoBehaviour
 
     private bool canCast = true;
     private bool castPressed;
-
     private MovementControls controls;
+    private Dictionary<string, float> savedAmmo = new Dictionary<string, float>();
+    private Dictionary<string, float> savedMaxAmmo = new Dictionary<string, float>();
 
     private bool primary = true;
     private bool secondary = false;
@@ -120,6 +122,9 @@ public class PlayerController : MonoBehaviour
             anim = GetComponentInChildren<PlayerAnim>();
 
         OnHealthChanged?.Invoke(maxHealth, health);
+
+        SaveWeaponAmmo(primaryGun, primaryAmmo, primaryMaxAmmo);
+        SaveWeaponAmmo(secondaryGun, secondaryAmmo, secondaryMaxAmmo);
     }
 
     private void OnCast(InputAction.CallbackContext context)
@@ -207,12 +212,14 @@ public class PlayerController : MonoBehaviour
         {
             primaryGun.Fire();
             primaryAmmo--;
+            SaveWeaponAmmo(primaryGun, primaryAmmo, primaryMaxAmmo);
             GameManager.Instance.updateAmmo(primaryAmmo);
         }
         else if (secondary && secondaryGun != null)
         {
             secondaryGun.Fire();
             secondaryAmmo--;
+            SaveWeaponAmmo(secondaryGun, secondaryAmmo, secondaryMaxAmmo);
             GameManager.Instance.updateAmmo(secondaryAmmo);
         }
 
@@ -326,9 +333,10 @@ public class PlayerController : MonoBehaviour
         {
             float amount = primaryGun.getPickupAmmoAmount();
             primaryAmmo += amount;
-
             if (primaryAmmo > primaryMaxAmmo)
                 primaryAmmo = primaryMaxAmmo;
+
+            SaveWeaponAmmo(primaryGun, primaryAmmo, primaryMaxAmmo);
 
             if (GameManager.Instance != null)
                 GameManager.Instance.updateAmmo(primaryAmmo);
@@ -337,9 +345,11 @@ public class PlayerController : MonoBehaviour
         {
             float amount = secondaryGun.getPickupAmmoAmount();
             secondaryAmmo += amount;
-
+           
             if (secondaryAmmo > secondaryMaxAmmo)
                 secondaryAmmo = secondaryMaxAmmo;
+
+            SaveWeaponAmmo(secondaryGun, secondaryAmmo, secondaryMaxAmmo);
 
             if (GameManager.Instance != null)
                 GameManager.Instance.updateAmmo(secondaryAmmo);
@@ -377,7 +387,7 @@ public class PlayerController : MonoBehaviour
         // ? newHeldGunPrefab.GetComponent<PlayerGun>()
         // : null;
 
-        if (newHeldGunPrefab == null || newHeldGunPrefab == null)
+        if (newHeldGunPrefab == null)
             return;
 
         //gunHoldParent = pickup.getHoldPosition();
@@ -393,6 +403,8 @@ public class PlayerController : MonoBehaviour
 
             if (oldGun != null)
             {
+                SaveWeaponAmmo(oldGun, primaryAmmo, primaryMaxAmmo);
+
                 GameObject oldPickupPrefab = oldGun.GetWorldPickupPrefab();
 
                 if (oldPickupPrefab != null)
@@ -416,8 +428,8 @@ public class PlayerController : MonoBehaviour
 
             primaryDamage = primaryGun.getDamage();
             primaryFireRate = primaryGun.getFireRate();
-            primaryAmmo = primaryGun.getAmmo();
-            primaryMaxAmmo = primaryAmmo;
+
+            LoadWeaponAmmo(primaryGun, primaryGun.getAmmo(), out primaryAmmo, out primaryMaxAmmo);
 
             primaryMuzzlePoint = primaryGun.getMuzzlePoint();
             primaryMuzzleFlash = primaryGun.getMuzzleFlash();
@@ -439,6 +451,8 @@ public class PlayerController : MonoBehaviour
 
             if (oldGun != null)
             {
+                SaveWeaponAmmo(oldGun, secondaryAmmo, secondaryMaxAmmo);
+
                 GameObject oldPickupPrefab = oldGun.GetWorldPickupPrefab();
 
                 if (oldPickupPrefab != null)
@@ -452,8 +466,8 @@ public class PlayerController : MonoBehaviour
 
                 Destroy(oldGun.gameObject);
             }
-            GameObject newGunObj = Instantiate(newHeldGunPrefab, gunHoldParent);
 
+            GameObject newGunObj = Instantiate(newHeldGunPrefab, gunHoldParent);
             newGunObj.transform.localPosition = Vector3.zero;
             newGunObj.transform.localRotation = Quaternion.identity;
 
@@ -462,11 +476,11 @@ public class PlayerController : MonoBehaviour
 
             secondaryDamage = secondaryGun.getDamage();
             secondaryFireRate = secondaryGun.getFireRate();
-            secondaryAmmo = secondaryGun.getAmmo();
-            secondaryMaxAmmo = secondaryAmmo;
+
+            LoadWeaponAmmo(secondaryGun, secondaryGun.getAmmo(), out secondaryAmmo, out secondaryMaxAmmo);
 
             secondaryMuzzlePoint = secondaryGun.getMuzzlePoint();
-            secondaryMuzzleFlash = secondaryGun.getMuzzleFlash();        
+            secondaryMuzzleFlash = secondaryGun.getMuzzleFlash();
 
             secondaryGun.SetGunActive(true);
 
@@ -476,5 +490,29 @@ public class PlayerController : MonoBehaviour
                 GameManager.Instance.updateAmmo(secondaryAmmo);
             }
         }
+    }
+    private void SaveWeaponAmmo(PlayerGun gun, float currentAmmoValue, float maxAmmoValue)
+    {
+        if (gun == null) return;
+
+        string gunName = gun.getGunName();
+        savedAmmo[gunName] = currentAmmoValue;
+        savedMaxAmmo[gunName] = maxAmmoValue;
+    }
+
+    private void LoadWeaponAmmo(PlayerGun gun, float defaultAmmo, out float currentAmmoValue, out float maxAmmoValue)
+    {
+        currentAmmoValue = defaultAmmo;
+        maxAmmoValue = defaultAmmo;
+
+        if (gun == null) return;
+
+        string gunName = gun.getGunName();
+
+        if (savedAmmo.TryGetValue(gunName, out float storedAmmo))
+            currentAmmoValue = storedAmmo;
+
+        if (savedMaxAmmo.TryGetValue(gunName, out float storedMaxAmmo))
+            maxAmmoValue = storedMaxAmmo;
     }
 } 
