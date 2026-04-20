@@ -158,6 +158,7 @@ public class EnemyController : MonoBehaviour
                 Vector3 spawnPos = dropPoint != null ? dropPoint.position : transform.position;
                 Instantiate(healthPickupPrefab, spawnPos, Quaternion.identity);
             }
+            Destroy(gameObject, 3f);
         }
     }
 

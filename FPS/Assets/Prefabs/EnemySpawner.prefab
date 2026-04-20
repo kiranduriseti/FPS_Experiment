@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2760964454547351204
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1701588115016827912}
+  - component: {fileID: 3224422860696175607}
+  m_Layer: 0
+  m_Name: EnemySpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1701588115016827912
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2760964454547351204}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -44.1, y: 6.37643, z: -54.7}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3224422860696175607
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2760964454547351204}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd7c21ad8017b4de597ba49726dd52d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
+  meleeEnemyPrefabs:
+  - {fileID: 4176378301323494097, guid: 307b2dece5356401ab94876b75429138, type: 3}
+  - {fileID: 1899975621220605935, guid: 0d2d0920520964b898d40523fccf3055, type: 3}
+  - {fileID: 158539940003926913, guid: cad3bd000365546e495b1ce47b4f9889, type: 3}
+  rangedEnemyPrefabs:
+  - {fileID: 2367997946164196182, guid: 0f05f3bb0837d462181a4cb2543211c5, type: 3}
+  spawnRadius: 20
+  refillCooldown: 5
+  maxMeleeEnemies: 5
+  maxRangedEnemies: 2
+  navMeshSampleDistance: 10
+  spawnHeight: 0.1

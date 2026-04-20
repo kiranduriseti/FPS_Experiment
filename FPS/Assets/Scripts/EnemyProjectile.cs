@@ -6,6 +6,9 @@ public class EnemyProjectile : MonoBehaviour
     [SerializeField] private float damage = 10f;
     [SerializeField] private float lifetime = 5f;
 
+    [Header("Collision")]
+    [SerializeField] private LayerMask hitMask;
+
     private Vector3 moveDirection;
 
     public void Initialize(Vector3 direction, float projectileDamage)
@@ -22,6 +25,9 @@ public class EnemyProjectile : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (((1 << other.gameObject.layer) & hitMask) == 0)
+            return;
+
         PlayerController player = other.GetComponent<PlayerController>();
         if (player == null)
             player = other.GetComponentInParent<PlayerController>();

@@ -1,9 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
-using System.Collections.Generic;
 
-[RequireComponent(typeof(EnemyController))]
 public class EnemyHealthUi : MonoBehaviour
 {
     public GameObject uiPrefab;
@@ -13,9 +10,10 @@ public class EnemyHealthUi : MonoBehaviour
     Transform ui;
     Image healthSlider;
     Transform cam;
-    private EnemyController enemyController;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    private EnemyController enemyController;
+    private EnemyRangedController enemyRangedController;
+
     void Start()
     {
         if (target == null)
@@ -27,8 +25,8 @@ public class EnemyHealthUi : MonoBehaviour
         {
             cam = Camera.main.transform;
         }
-        
-        foreach(Canvas c in FindObjectsOfType<Canvas>())
+
+        foreach (Canvas c in FindObjectsOfType<Canvas>())
         {
             if (c.renderMode == RenderMode.WorldSpace)
             {
@@ -38,38 +36,60 @@ public class EnemyHealthUi : MonoBehaviour
                 break;
             }
         }
+
         enemyController = GetComponent<EnemyController>();
-        enemyController.OnHealthChanged += OnHealthChanged;
+        enemyRangedController = GetComponent<EnemyRangedController>();
+
+        if (enemyController != null)
+        {
+            enemyController.OnHealthChanged += OnHealthChanged;
+        }
+
+        if (enemyRangedController != null)
+        {
+            enemyRangedController.OnHealthChanged += OnHealthChanged;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (enemyController != null)
+        {
+            enemyController.OnHealthChanged -= OnHealthChanged;
+        }
+
+        if (enemyRangedController != null)
+        {
+            enemyRangedController.OnHealthChanged -= OnHealthChanged;
+        }
     }
 
     void OnHealthChanged(float maxHealth, float currHealth)
     {
         if (ui == null) return;
+
         lastVisibleTime = Time.time;
         ui.gameObject.SetActive(true);
-        float healthPercent = currHealth/maxHealth;
+
+        float healthPercent = currHealth / maxHealth;
         healthSlider.fillAmount = healthPercent;
+
         if (currHealth <= 0)
         {
             Destroy(ui.gameObject);
         }
-
     }
 
     void LateUpdate()
     {
-        if (ui == null || target == null) return;
+        if (ui == null || target == null || cam == null) return;
 
         ui.position = target.position;
-        ui.forward = - cam.forward;
+        ui.forward = -cam.forward;
+
         if (Time.time - lastVisibleTime > visibleTime)
         {
             ui.gameObject.SetActive(false);
         }
-    }
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

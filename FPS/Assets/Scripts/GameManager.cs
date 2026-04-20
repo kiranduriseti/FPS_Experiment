@@ -13,7 +13,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TMP_Text healthText;
     [SerializeField] private TMP_Text ammoText;
     [SerializeField] private TMP_Text ammoWarning;
-    [SerializeField] private int targetKills = 20;
+    [SerializeField] private int targetKills = 60;
     [SerializeField] private CameraFollow cameraFollow;
     [SerializeField] private float displayTime = 1.5f;
 
@@ -121,7 +121,7 @@ public class GameManager : MonoBehaviour
         maxAmmo = ammo;
     }
 
-    private void WinGame()
+    public void WinGame()
     {
         Time.timeScale = 0f;
         scoreText.gameObject.SetActive(false);

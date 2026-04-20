@@ -17,6 +17,7 @@ public class EnemyRangedController : MonoBehaviour
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private Transform projectileSpawnPoint;
     [SerializeField] private float projectileDamage = 10f;
+    [SerializeField] private float projectileFireDelay = 0.35f;
 
     [Header("Detection")]
     [SerializeField] private LayerMask playerMask;
@@ -47,7 +48,7 @@ public class EnemyRangedController : MonoBehaviour
 
     private void Awake()
     {
-        anim = GetComponent<Animator>();
+        anim = GetComponentInChildren<Animator>();
         agent = GetComponent<NavMeshAgent>();
     }
 
@@ -63,7 +64,7 @@ public class EnemyRangedController : MonoBehaviour
         if (state == State.Dead)
             return;
 
-        if (agent != null && agent.speed > 0f)
+        if (agent != null && anim != null && agent.speed > 0f)
         {
             anim.SetFloat("Speed", agent.velocity.magnitude / agent.speed);
         }
@@ -96,6 +97,9 @@ public class EnemyRangedController : MonoBehaviour
         }
 
         PlayerController player = target.GetComponent<PlayerController>();
+        if (player == null)
+            player = target.GetComponentInParent<PlayerController>();
+
         if (player != null && player.health <= 0f)
         {
             state = State.Dead;
@@ -136,7 +140,7 @@ public class EnemyRangedController : MonoBehaviour
 
         float distance = Vector3.Distance(transform.position, target.position);
 
-        if (distance > attackRadius || !HasLineOfSight())
+        if (distance > attackRadius)
         {
             state = State.Aggro;
             return;
@@ -151,11 +155,24 @@ public class EnemyRangedController : MonoBehaviour
 
         if (canAttack)
         {
-            anim.SetTrigger("Attack");
+            if (anim != null)
+                anim.SetTrigger("Projectile Attack 01");
+
+            StartCoroutine(FireProjectileAfterDelay(projectileFireDelay));
             StartCoroutine(AttackCooldown());
         }
 
         state = State.Aggro;
+    }
+
+    private IEnumerator FireProjectileAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (state != State.Dead)
+        {
+            FireProjectile();
+        }
     }
 
     private void FaceTarget()
@@ -193,7 +210,6 @@ public class EnemyRangedController : MonoBehaviour
         return false;
     }
 
-    // Call this from an animation event during the attack animation
     public void FireProjectile()
     {
         if (state == State.Dead)
@@ -256,6 +272,8 @@ public class EnemyRangedController : MonoBehaviour
                 Vector3 spawnPos = dropPoint != null ? dropPoint.position : transform.position;
                 Instantiate(healthPickupPrefab, spawnPos, Quaternion.identity);
             }
+
+            Destroy(gameObject, 3f);
         }
     }
 
@@ -269,7 +287,10 @@ public class EnemyRangedController : MonoBehaviour
             agent.isStopped = true;
         }
 
-        anim.SetTrigger("Dead");
+        if (anim != null)
+        {
+            anim.SetTrigger("Die");
+        }
 
         if (GameManager.Instance != null)
         {

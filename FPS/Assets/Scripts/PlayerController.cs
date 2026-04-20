@@ -109,10 +109,10 @@ public class PlayerController : MonoBehaviour
 
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.updateHealth(health);
-            GameManager.Instance.updateAmmo(primaryAmmo);
             GameManager.Instance.setMaxHealth(maxHealth);
             GameManager.Instance.setMaxAmmo(primaryMaxAmmo);
+            GameManager.Instance.updateHealth(health);
+            GameManager.Instance.updateAmmo(primaryAmmo);
         }
 
         if (cam == null)
@@ -176,30 +176,51 @@ public class PlayerController : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit hit, shootRange, shootMask))
         {
-            EnemyController enemy = hit.collider.GetComponentInParent<EnemyController>();
-
-            if (enemy != null)
+            if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Enemy"))
             {
-                if (primary)
+                EnemyController meleeEnemy = hit.collider.GetComponentInParent<EnemyController>();
+                EnemyRangedController rangedEnemy = hit.collider.GetComponentInParent<EnemyRangedController>();
+
+                if (meleeEnemy != null)
                 {
-                    enemy.enemyhit(primaryDamage);
+                    if (primary)
+                    {
+                        meleeEnemy.enemyhit(primaryDamage);
+                    }
+                    else if (secondary)
+                    {
+                        meleeEnemy.enemyhit(secondaryDamage);
+                    }
                 }
-                else if (secondary)
+                else if (rangedEnemy != null)
                 {
-                    enemy.enemyhit(secondaryDamage);
+                    if (primary)
+                    {
+                        rangedEnemy.enemyhit(primaryDamage);
+                    }
+                    else if (secondary)
+                    {
+                        rangedEnemy.enemyhit(secondaryDamage);
+                    }
                 }
             }
             else if (bulletHolePrefab != null)
             {
-                Vector3 holePos = hit.point + hit.normal * 0.01f;
+                int groundLayer = LayerMask.NameToLayer("Ground");
+                int defaultLayer = LayerMask.NameToLayer("Default");
 
-                GameObject hole = Instantiate(
-                    bulletHolePrefab,
-                    holePos,
-                    Quaternion.identity
-                );
+                if (hit.collider.gameObject.layer == groundLayer)
+                {
+                    Vector3 holePos = hit.point + hit.normal * 0.01f;
 
-                Destroy(hole, bulletHoleLifetime);
+                    GameObject hole = Instantiate(
+                        bulletHolePrefab,
+                        holePos,
+                        Quaternion.LookRotation(hit.normal)
+                    );
+
+                    Destroy(hole, bulletHoleLifetime);
+                }
             }
         }
 
