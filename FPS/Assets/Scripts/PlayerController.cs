@@ -278,7 +278,7 @@ public class PlayerController : MonoBehaviour
                 Instantiate(deathEffect, transform.position, Quaternion.identity);
             }
 
-            Invoke(nameof(DelayedAction), 4.0f);
+            Invoke(nameof(DelayedAction), 0.5f);
         }
     }
 

@@ -15212,7 +15212,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1475593333
 RectTransform:
   m_ObjectHideFlags: 0
@@ -19467,6 +19467,7 @@ MonoBehaviour:
   healthText: {fileID: 48007990}
   ammoText: {fileID: 1446007}
   ammoWarning: {fileID: 357939076}
+  startButton: {fileID: 514033591}
   targetKills: 30
   cameraFollow: {fileID: 83174994}
   displayTime: 1.5
@@ -20179,6 +20180,10 @@ PrefabInstance:
     - target: {fileID: 2367997946164196182, guid: 0f05f3bb0837d462181a4cb2543211c5, type: 3}
       propertyPath: m_Name
       value: RangedEnemy
+      objectReference: {fileID: 0}
+    - target: {fileID: 2367997946164196182, guid: 0f05f3bb0837d462181a4cb2543211c5, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2539739415874816710, guid: 0f05f3bb0837d462181a4cb2543211c5, type: 3}
       propertyPath: m_LocalPosition.x

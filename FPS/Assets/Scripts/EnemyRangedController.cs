@@ -7,7 +7,7 @@ public class EnemyRangedController : MonoBehaviour
     [Header("Stats")]
     public float patrolRadius = 20f;
     public float aggroRadius = 15f;
-    public float attackRadius = 10f;
+    public float attackRadius = 20f;
     public float health = 20f;
     public float minPatrolTime = 2f;
     public float maxPatrolTime = 5f;
@@ -18,6 +18,7 @@ public class EnemyRangedController : MonoBehaviour
     [SerializeField] private Transform projectileSpawnPoint;
     [SerializeField] private float projectileDamage = 10f;
     [SerializeField] private float projectileFireDelay = 0.35f;
+    [SerializeField] private float aimHeight = 1.5f;
 
     [Header("Detection")]
     [SerializeField] private LayerMask playerMask;
@@ -117,13 +118,23 @@ public class EnemyRangedController : MonoBehaviour
 
         FaceTarget();
 
-        if (distance <= attackRadius && canAttack && HasLineOfSight())
+        if (distance <= attackRadius)
         {
-            state = State.Attack;
+            if (agent != null && agent.isOnNavMesh)
+            {
+                agent.isStopped = true;
+                agent.ResetPath();
+            }
+
+            if (canAttack)
+            {
+                state = State.Attack;
+            }
+
             return;
         }
 
-        if (agent != null)
+        if (agent != null && agent.isOnNavMesh)
         {
             agent.isStopped = false;
             agent.SetDestination(target.position);
@@ -148,9 +159,10 @@ public class EnemyRangedController : MonoBehaviour
 
         FaceTarget();
 
-        if (agent != null)
+        if (agent != null && agent.isOnNavMesh)
         {
             agent.isStopped = true;
+            agent.ResetPath();
         }
 
         if (canAttack)
@@ -190,26 +202,6 @@ public class EnemyRangedController : MonoBehaviour
         }
     }
 
-    private bool HasLineOfSight()
-    {
-        if (target == null || projectileSpawnPoint == null)
-            return false;
-
-        Vector3 start = projectileSpawnPoint.position;
-        Vector3 end = target.position + Vector3.up * 1f;
-        Vector3 dir = (end - start).normalized;
-        float dist = Vector3.Distance(start, end);
-
-        Debug.DrawRay(start, dir * dist, Color.red);
-
-        if (Physics.Raycast(start, dir, out RaycastHit hit, dist))
-        {
-            return hit.collider.GetComponentInParent<PlayerController>() != null;
-        }
-
-        return false;
-    }
-
     public void FireProjectile()
     {
         if (state == State.Dead)
@@ -218,7 +210,7 @@ public class EnemyRangedController : MonoBehaviour
         if (projectilePrefab == null || projectileSpawnPoint == null || target == null)
             return;
 
-        Vector3 aimPoint = target.position + Vector3.up * 1f;
+        Vector3 aimPoint = target.position + Vector3.up * aimHeight;
         Vector3 dir = (aimPoint - projectileSpawnPoint.position).normalized;
 
         GameObject proj = Instantiate(
@@ -282,9 +274,10 @@ public class EnemyRangedController : MonoBehaviour
         state = State.Dead;
         canAttack = false;
 
-        if (agent != null)
+        if (agent != null && agent.isOnNavMesh)
         {
             agent.isStopped = true;
+            agent.ResetPath();
         }
 
         if (anim != null)
@@ -320,7 +313,7 @@ public class EnemyRangedController : MonoBehaviour
 
             Vector3 destination = transform.position + offset;
 
-            if (agent != null)
+            if (agent != null && agent.isOnNavMesh)
             {
                 agent.isStopped = false;
                 agent.SetDestination(destination);
@@ -357,7 +350,7 @@ public class EnemyRangedController : MonoBehaviour
     {
         state = State.Patrol;
 
-        if (agent != null)
+        if (agent != null && agent.isOnNavMesh)
         {
             agent.isStopped = false;
         }

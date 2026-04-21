@@ -1,18 +1,25 @@
 using UnityEngine;
 using TMPro;
 using System.Collections;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
+
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
     [SerializeField] private GameObject victoryPanel;
     [SerializeField] private GameObject startPanel;
-    [SerializeField] private GameObject defeatPanel; 
+    [SerializeField] private GameObject defeatPanel;
     [SerializeField] private GameObject Crosshair;
+
     [SerializeField] private TMP_Text scoreText;
     [SerializeField] private TMP_Text healthText;
     [SerializeField] private TMP_Text ammoText;
     [SerializeField] private TMP_Text ammoWarning;
+
+    [SerializeField] private Button startButton;
+
     [SerializeField] private int targetKills = 60;
     [SerializeField] private CameraFollow cameraFollow;
     [SerializeField] private float displayTime = 1.5f;
@@ -25,6 +32,7 @@ public class GameManager : MonoBehaviour
     private bool gameEnded = false;
 
     private Coroutine ammoWarningRoutine;
+
     private void Awake()
     {
         if (Instance == null)
@@ -39,41 +47,57 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        //Time.timeScale = 0f;
-        Time.timeScale = 1f;
+        //Testing
+        StartGame();
+        return;
+        Time.timeScale = 0f;
 
-        //startPanel.SetActive(true);
-        startPanel.SetActive(false);
-        victoryPanel.SetActive(false);
-        defeatPanel.SetActive(false);
+        if (startPanel != null) startPanel.SetActive(true);
+        if (victoryPanel != null) victoryPanel.SetActive(false);
+        if (defeatPanel != null) defeatPanel.SetActive(false);
 
-        ammoWarning.gameObject.SetActive(false);
-        
-        //Crosshair.SetActive(false);
-        Crosshair.SetActive(true);
+        if (ammoWarning != null) ammoWarning.gameObject.SetActive(false);
+        if (Crosshair != null) Crosshair.SetActive(false);
+
+        if (ammoText != null) ammoText.gameObject.SetActive(false);
+        if (healthText != null) healthText.gameObject.SetActive(false);
+        if (scoreText != null) scoreText.gameObject.SetActive(false);
 
         UpdateScoreUI();
 
-        // if (cameraFollow != null)
-        // {
-        //     cameraFollow.DisableFPSCamera();
-        // }
         if (cameraFollow != null)
         {
-            cameraFollow.EnableFPSCamera();
+            cameraFollow.DisableFPSCamera();
+        }
+
+        if (startButton != null)
+        {
+            EventSystem.current.SetSelectedGameObject(startButton.gameObject);
         }
     }
 
     public void StartGame()
     {
-        startPanel.SetActive(false);
-        Crosshair.SetActive(true);
+        StartCoroutine(StartGameRoutine());
+    }
+
+    private IEnumerator StartGameRoutine()
+    {
+        if (startPanel != null) startPanel.SetActive(false);
+        if (Crosshair != null) Crosshair.SetActive(true);
+
+        if (ammoText != null) ammoText.gameObject.SetActive(true);
+        if (healthText != null) healthText.gameObject.SetActive(true);
+        if (scoreText != null) scoreText.gameObject.SetActive(true);
+
         Time.timeScale = 1f;
 
         if (cameraFollow != null)
         {
             cameraFollow.EnableFPSCamera();
         }
+
+        yield return new WaitUntil(() => !Input.GetMouseButton(0));
     }
 
     public void AddKill()
@@ -93,20 +117,23 @@ public class GameManager : MonoBehaviour
     public void updateHealth(float health)
     {
         currentHealth = health;
+
         if (maxHealth > 0f && (currentHealth / maxHealth) < 0.5f)
             healthText.color = Color.red;
         else
             healthText.color = Color.green;
+
         healthText.text = "Health: " + currentHealth + " / " + maxHealth;
     }
 
     public void updateAmmo(float ammo)
     {
         currentAmmo = ammo;
+
         if (maxAmmo > 0f && (currentAmmo / maxAmmo) < 0.5f)
             ammoText.color = Color.red;
         else
-            ammoText.color = Color.orange;
+            ammoText.color = new Color(1f, 0.5f, 0f);
 
         ammoText.text = "Ammo: " + currentAmmo + " / " + maxAmmo;
     }
@@ -114,8 +141,8 @@ public class GameManager : MonoBehaviour
     public void setMaxHealth(float health)
     {
         maxHealth = health;
-        UpdateScoreUI();
     }
+
     public void setMaxAmmo(float ammo)
     {
         maxAmmo = ammo;
@@ -124,7 +151,9 @@ public class GameManager : MonoBehaviour
     public void WinGame()
     {
         Time.timeScale = 0f;
-        scoreText.gameObject.SetActive(false);
+
+        if (scoreText != null) scoreText.gameObject.SetActive(false);
+
         victoryPanel.SetActive(true);
 
         if (cameraFollow != null)
@@ -136,7 +165,9 @@ public class GameManager : MonoBehaviour
     public void LoseGame()
     {
         Time.timeScale = 0f;
-        scoreText.gameObject.SetActive(false);
+
+        if (scoreText != null) scoreText.gameObject.SetActive(false);
+
         defeatPanel.SetActive(true);
 
         if (cameraFollow != null)
@@ -160,13 +191,16 @@ public class GameManager : MonoBehaviour
     private IEnumerator ShowAndHideRoutine()
     {
         ammoWarning.gameObject.SetActive(true);
-        yield return new WaitForSeconds(displayTime);
+        yield return new WaitForSecondsRealtime(displayTime);
         ammoWarning.gameObject.SetActive(false);
         ammoWarningRoutine = null;
     }
 
     private void UpdateScoreUI()
     {
-        scoreText.text = "Score: " + currentKills + " / " + targetKills;
+        if (scoreText != null)
+        {
+            scoreText.text = "Score: " + currentKills + " / " + targetKills;
+        }
     }
 }
