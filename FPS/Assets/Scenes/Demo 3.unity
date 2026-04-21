@@ -4051,7 +4051,7 @@ MonoBehaviour:
   maxHealth: 0
   shootMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 336
   primaryMuzzlePoint: {fileID: 814312226}
   secondaryMuzzlePoint: {fileID: 1516071677}
   gunHoldParent: {fileID: 1281736083}
